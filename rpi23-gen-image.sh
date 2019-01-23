@@ -175,6 +175,7 @@ ENABLE_SPLASH=${ENABLE_SPLASH:=true}
 ENABLE_LOGO=${ENABLE_LOGO:=true}
 ENABLE_SILENT_BOOT=${ENABLE_SILENT_BOOT=false}
 DISABLE_UNDERVOLT_WARNINGS=${DISABLE_UNDERVOLT_WARNINGS:=}
+IMAGE_POST_BUILD_HOOK=${IMAGE_POST_BUILD_HOOK:=""}
 
 # Kernel compilation settings
 BUILD_KERNEL=${BUILD_KERNEL:=true}
@@ -866,5 +867,15 @@ else
     qemu-img resize "$QEMU_IMAGE".qcow2 $QEMU_SIZE
 
     echo "$QEMU_IMAGE.qcow2 ($QEMU_SIZE)" ": successfully created"
+  fi
+fi
+
+# Execute an user-definied script after image was built
+if [ -n "${IMAGE_POST_BUILD_HOOK}" ] ; then
+  if [ -f "${IMAGE_POST_BUILD_HOOK}" ]; then
+    . "${IMAGE_POST_BUILD_HOOK}"
+  else
+    echo "error: '${IMAGE_POST_BUILD_HOOK}' is not a file (IMAGE_POST_BUILD_HOOK)!"
+    exit 1
   fi
 fi
