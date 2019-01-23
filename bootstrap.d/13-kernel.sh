@@ -97,20 +97,20 @@ if [ "$BUILD_KERNEL" = true ] ; then
 
       #Switch to KERNELSRC_DIR so we can use set_kernel_config
       cd "${KERNEL_DIR}" || exit
-	  
-	  if [ "$KERNEL_ARCH" = arm64 ] ; then
-	    #Fix SD_DRIVER upstream and downstream mess in 64bit RPIdeb_config
-	    # use correct driver MMC_BCM2835_MMC instead of MMC_BCM2835_SDHOST - see https://www.raspberrypi.org/forums/viewtopic.php?t=210225
-	    set_kernel_config CONFIG_MMC_BCM2835 n
-	    set_kernel_config CONFIG_MMC_SDHCI_IPROC n
-	    set_kernel_config CONFIG_USB_DWC2 n
-	    sed -i "s|depends on MMC_BCM2835_MMC && MMC_BCM2835_DMA|depends on MMC_BCM2835_MMC|" "${KERNEL_DIR}"/drivers/mmc/host/Kconfig
-	  
-	    #VLAN got disabled without reason in arm64bit
-	    set_kernel_config CONFIG_IPVLAN m
-	  fi
-	  
-	  # enable ZSWAP see https://askubuntu.com/a/472227 or https://wiki.archlinux.org/index.php/zswap
+
+      if [ "$KERNEL_ARCH" = arm64 ] ; then
+        #Fix SD_DRIVER upstream and downstream mess in 64bit RPIdeb_config
+        # use correct driver MMC_BCM2835_MMC instead of MMC_BCM2835_SDHOST - see https://www.raspberrypi.org/forums/viewtopic.php?t=210225
+        set_kernel_config CONFIG_MMC_BCM2835 n
+        set_kernel_config CONFIG_MMC_SDHCI_IPROC n
+        set_kernel_config CONFIG_USB_DWC2 n
+        sed -i "s|depends on MMC_BCM2835_MMC && MMC_BCM2835_DMA|depends on MMC_BCM2835_MMC|" "${KERNEL_DIR}"/drivers/mmc/host/Kconfig
+
+        #VLAN got disabled without reason in arm64bit
+        set_kernel_config CONFIG_IPVLAN m
+      fi
+  
+      # enable ZSWAP see https://askubuntu.com/a/472227 or https://wiki.archlinux.org/index.php/zswap
       if [ "$KERNEL_ZSWAP" = true ] ; then
         set_kernel_config CONFIG_ZPOOL y
         set_kernel_config CONFIG_ZSWAP y
@@ -118,13 +118,12 @@ if [ "$BUILD_KERNEL" = true ] ; then
         set_kernel_config CONFIG_Z3FOLD y
         set_kernel_config CONFIG_ZSMALLOC y
         set_kernel_config CONFIG_PGTABLE_MAPPING y
-		set_kernel_config CONFIG_LZO_COMPRESS y
-
-	  fi
+        set_kernel_config CONFIG_LZO_COMPRESS y
+      fi
 
       # enable basic KVM support; see https://www.raspberrypi.org/forums/viewtopic.php?f=63&t=210546&start=25#p1300453
-	  if [ "$KERNEL_VIRT" = true ] && { [ "$RPI_MODEL" = 2 ] || [ "$RPI_MODEL" = 3 ] || [ "$RPI_MODEL" = 3P ] ; } ; then
-		set_kernel_config CONFIG_HAVE_KVM_IRQCHIP y
+      if [ "$KERNEL_VIRT" = true ] && { [ "$RPI_MODEL" = 2 ] || [ "$RPI_MODEL" = 3 ] || [ "$RPI_MODEL" = 3P ] ; } ; then
+        set_kernel_config CONFIG_HAVE_KVM_IRQCHIP y
         set_kernel_config CONFIG_HAVE_KVM_ARCH_TLB_FLUSH_ALL y
         set_kernel_config CONFIG_HAVE_KVM_CPU_RELAX_INTERCEPT y
         set_kernel_config CONFIG_HAVE_KVM_EVENTFD y
@@ -142,18 +141,18 @@ if [ "$BUILD_KERNEL" = true ] ; then
         set_kernel_config CONFIG_VHOST_CROSS_ENDIAN_LEGACY y
         set_kernel_config CONFIG_VHOST_NET m
         set_kernel_config CONFIG_VIRTUALIZATION y
-		
-		set_kernel_config CONFIG_MMU_NOTIFIER y
-		
-		# erratum
-		set_kernel_config ARM64_ERRATUM_834220 y
-		
-		# https://sourceforge.net/p/kvm/mailman/message/18440797/
-		set_kernel_config CONFIG_PREEMPT_NOTIFIERS y
-	  fi
+
+        set_kernel_config CONFIG_MMU_NOTIFIER y
+
+        # erratum
+        set_kernel_config ARM64_ERRATUM_834220 y
+
+        # https://sourceforge.net/p/kvm/mailman/message/18440797/
+        set_kernel_config CONFIG_PREEMPT_NOTIFIERS y
+      fi
 
       # enable apparmor,integrity audit,
-	  if [ "$KERNEL_SECURITY" = true ] ; then
+      if [ "$KERNEL_SECURITY" = true ] ; then
 
         # security filesystem, security models and audit
         set_kernel_config CONFIG_SECURITYFS y
@@ -199,6 +198,7 @@ if [ "$BUILD_KERNEL" = true ] ; then
           set_kernel_config CONFIG_NETLABEL y
           set_kernel_config CONFIG_IP6_NF_SECURITY m
         fi
+
         set_kernel_config CONFIG_SECURITY_SELINUX n
         set_kernel_config CONFIG_SECURITY_SMACK n
         set_kernel_config CONFIG_SECURITY_TOMOYO n
@@ -215,8 +215,8 @@ if [ "$BUILD_KERNEL" = true ] ; then
         set_kernel_config CONFIG_SYSTEM_EXTRA_CERTIFICATE y
         set_kernel_config CONFIG_SECONDARY_TRUSTED_KEYRING y
         set_kernel_config CONFIG_IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY n
-		set_kernel_config CONFIG_SYSTEM_TRUSTED_KEYS m
-		set_kernel_config CONFIG_SYSTEM_EXTRA_CERTIFICATE_SIZE 4096
+        set_kernel_config CONFIG_SYSTEM_TRUSTED_KEYS m
+        set_kernel_config CONFIG_SYSTEM_EXTRA_CERTIFICATE_SIZE 4096
 
         set_kernel_config CONFIG_ARM64_CRYPTO y
         set_kernel_config CONFIG_CRYPTO_SHA256_ARM64 m
@@ -233,7 +233,7 @@ if [ "$BUILD_KERNEL" = true ] ; then
         set_kernel_config CONFIG_CRYPTO_AES_ARM64_NEON_BLK m
         set_kernel_config CONFIG_CRYPTO_CHACHA20_NEON m
         set_kernel_config CONFIG_CRYPTO_AES_ARM64_BS m
-		set_kernel_config SYSTEM_TRUSTED_KEYS
+        set_kernel_config SYSTEM_TRUSTED_KEYS
       fi
 
       # Netfilter kernel support See https://github.com/raspberrypi/linux/issues/2177#issuecomment-354647406
@@ -345,45 +345,44 @@ if [ "$BUILD_KERNEL" = true ] ; then
         set_kernel_config CONFIG_NF_TABLES_NETDEV m
       fi
 
-	  # Enables BPF syscall for systemd-journald see https://github.com/torvalds/linux/blob/master/init/Kconfig#L848 or https://groups.google.com/forum/#!topic/linux.gentoo.user/_2aSc_ztGpA
-	  if [ "$KERNEL_BPF" = true ] ; then
+      # Enables BPF syscall for systemd-journald see https://github.com/torvalds/linux/blob/master/init/Kconfig#L848 or https://groups.google.com/forum/#!topic/linux.gentoo.user/_2aSc_ztGpA
+      if [ "$KERNEL_BPF" = true ] ; then
         set_kernel_config CONFIG_BPF_SYSCALL y
-		set_kernel_config CONFIG_BPF_EVENTS y
-		set_kernel_config CONFIG_BPF_STREAM_PARSER y
-	    set_kernel_config CONFIG_CGROUP_BPF y
-	  fi
+        set_kernel_config CONFIG_BPF_EVENTS y
+        set_kernel_config CONFIG_BPF_STREAM_PARSER y
+        set_kernel_config CONFIG_CGROUP_BPF y
+      fi
 
-	  # KERNEL_DEFAULT_GOV was set by user 
-	  if [ "$KERNEL_DEFAULT_GOV" != powersave ] && [ -n "$KERNEL_DEFAULT_GOV" ] ; then
+      # KERNEL_DEFAULT_GOV was set by user 
+      if [ "$KERNEL_DEFAULT_GOV" != powersave ] && [ -n "$KERNEL_DEFAULT_GOV" ] ; then
 
-	    case "$KERNEL_DEFAULT_GOV" in
+        case "$KERNEL_DEFAULT_GOV" in
           performance)
-	        set_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE y
+            set_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE y
             ;;
           userspace)
             set_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE y
             ;;
           ondemand)
-		    set_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND y
+            set_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND y
             ;;
           conservative)
-		    set_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVE y
-		    ;;
+            set_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVE y
+            ;;
           shedutil)
-		    set_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL y
+            set_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL y
             ;;
           *)
             echo "error: unsupported default cpu governor"
             exit 1
             ;;
         esac
+        # unset previous default governor
+        unset_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_POWERSAVE
+      fi
 
-            # unset previous default governor
-	    unset_kernel_config CONFIG_CPU_FREQ_DEFAULT_GOV_POWERSAVE
-	  fi
-
-	  #Revert to previous directory
-	  cd "${WORKDIR}" || exit
+      #Revert to previous directory
+      cd "${WORKDIR}" || exit
 
       # Set kernel configuration parameters to enable qemu emulation
       if [ "$ENABLE_QEMU" = true ] ; then
@@ -424,7 +423,7 @@ if [ "$BUILD_KERNEL" = true ] ; then
       if [ "$KERNEL_MENUCONFIG" = true ] ; then
         make -C "${KERNEL_DIR}" ARCH="${KERNEL_ARCH}" CROSS_COMPILE="${CROSS_COMPILE}" menuconfig
       fi
-	# end if "$KERNELSRC_CONFIG" = true
+    # end if "$KERNELSRC_CONFIG" = true
     fi
 
     # Use ccache to cross compile the kernel
@@ -539,10 +538,10 @@ if [ "$BUILD_KERNEL" = true ] ; then
 else # BUILD_KERNEL=false
   if [ "$SET_ARCH" = 64 ] && { [ "$RPI_MODEL" = 3 ] || [ "$RPI_MODEL" = 3P ] ; } ; then
 
-	# Use Sakakis modified kernel if ZSWAP is active
+    # Use Sakakis modified kernel if ZSWAP is active
     if [ "$KERNEL_ZSWAP" = true ] || [ "$KERNEL_VIRT" = true ] || [ "$KERNEL_NF" = true ] || [ "$KERNEL_BPF" = true ] ; then
-	  RPI3_64_KERNEL_URL="${RPI3_64_BIS_KERNEL_URL}"
-	fi
+      RPI3_64_KERNEL_URL="${RPI3_64_BIS_KERNEL_URL}"
+    fi
 
     # Create temporary directory for dl
     temp_dir=$(as_nobody mktemp -d)
@@ -580,29 +579,29 @@ else # BUILD_KERNEL=false
     # Set permissions
     chown -R root:root "${R}"/tmp/kernel.deb
 
-	# Install kernel
-	chroot_exec dpkg -i /tmp/kernel.deb
+    # Install kernel
+    chroot_exec dpkg -i /tmp/kernel.deb
 
-	# move /boot to /boot/firmware to fit script env.
-	#mkdir "${BOOT_DIR}"
-	mkdir "${temp_dir}"/firmware
-	mv  "${R}"/boot/* "${temp_dir}"/firmware/
-	mv "${temp_dir}"/firmware "${R}"/boot/
+    # move /boot to /boot/firmware to fit script env.
+    #mkdir "${BOOT_DIR}"
+    mkdir "${temp_dir}"/firmware
+    mv  "${R}"/boot/* "${temp_dir}"/firmware/
+    mv "${temp_dir}"/firmware "${R}"/boot/
 
-	#same for kernel headers
-	if [ "$KERNEL_HEADERS" = true ] ; then
-	  # Fetch kernel header
-	  as_nobody wget -O "${temp_dir}"/kernel-header.deb -c "$RPI_32_KERNELHEADER_URL"
-	  mv "${temp_dir}"/kernel-header.deb "${R}"/tmp/kernel-header.deb
-	  chown -R root:root "${R}"/tmp/kernel-header.deb
-	  # Install kernel header
-	  chroot_exec dpkg -i /tmp/kernel-header.deb
-	  rm -f "${R}"/tmp/kernel-header.deb
-	fi
+    #same for kernel headers
+    if [ "$KERNEL_HEADERS" = true ] ; then
+      # Fetch kernel header
+      as_nobody wget -O "${temp_dir}"/kernel-header.deb -c "$RPI_32_KERNELHEADER_URL"
+      mv "${temp_dir}"/kernel-header.deb "${R}"/tmp/kernel-header.deb
+      chown -R root:root "${R}"/tmp/kernel-header.deb
+      # Install kernel header
+      chroot_exec dpkg -i /tmp/kernel-header.deb
+      rm -f "${R}"/tmp/kernel-header.deb
+    fi
 
     # Remove temporary directory and files
     rm -fr "${temp_dir}"
-	rm -f "${R}"/tmp/kernel.deb
+    rm -f "${R}"/tmp/kernel.deb
   fi
 
   # Check if kernel installation was successful
