@@ -6,9 +6,9 @@
 . ./functions.sh
 
 # Install and setup APT proxy configuration
-if [ -z "$APT_PROXY" ] ; then
+if [ -n "$APT_PROXY" ] ; then
   install_readonly files/apt/10proxy "${ETC_DIR}/apt/apt.conf.d/10proxy"
-  sed -i "s/\"\"/\"${APT_PROXY}\"/" "${ETC_DIR}/apt/apt.conf.d/10proxy"
+  sed -i "s|\"\"|\"${APT_PROXY}\"|" "${ETC_DIR}/apt/apt.conf.d/10proxy"
 fi
 
 # Install APT sources.list
