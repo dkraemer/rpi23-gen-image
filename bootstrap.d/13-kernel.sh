@@ -423,6 +423,19 @@ if [ "$BUILD_KERNEL" = true ] ; then
       if [ "$KERNEL_MENUCONFIG" = true ] ; then
         make -C "${KERNEL_DIR}" ARCH="${KERNEL_ARCH}" CROSS_COMPILE="${CROSS_COMPILE}" menuconfig
       fi
+
+      # Execute an user-definied script after kernel configuration
+      if [ -n "${KERNELSRC_POST_CONFIG_HOOK}" ] ; then
+        if [ -f "${KERNELSRC_POST_CONFIG_HOOK}" ]; then
+          cd "${KERNEL_DIR}" || exit
+          . "${KERNELSRC_POST_CONFIG_HOOK}"
+          cd "${WORKDIR}" || exit
+        else
+          echo "error: '${KERNELSRC_POST_CONFIG_HOOK}' specified script not found (KERNELSRC_POST_CONFIG_HOOK)!"
+          exit 1
+        fi
+      fi
+
     # end if "$KERNELSRC_CONFIG" = true
     fi
 
